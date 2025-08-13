@@ -1,62 +1,113 @@
 #include <raylib.h>
 #include <iostream>
+#include "test.h"
 
 int main()
 {
-
-  const int screenWidth{1280};
-  const int screenHeight{720};
-  const int refreshRate{GetMonitorRefreshRate(GetCurrentMonitor())};
+  // Window settings / config variables 
+  const int screenWidth{1024};
+  const int screenHeight{768};
+  int refreshRate{GetMonitorRefreshRate(GetCurrentMonitor())};
   float delta{};
-  bool _fps{true};
+  Vector2 mousePos{};
+  bool _fps{false};
 
   InitWindow(screenWidth, screenHeight, "The Game");
   SetTargetFPS(refreshRate);
 
+  // just here to make sure my header works
+  testFunction();
+
   // Game Variables
-  const float gravity{750};
-  const float maxSpeed{500};
-  const float acceleration{5};
-  const float friction{5};
 
-  Rectangle player{(float)screenWidth/2 - 50, (float)screenHeight/2 - 50, 100, 100};
-  Rectangle floor{(float)screenWidth/2 - 500, (float)screenHeight/2 + 250 - 25, 1000, 50};
+  bool isHeld{false};
 
-  std::cout << "Shut up clangd\n";
+  enum class Rarity {
+    COMMON,
+    UNCOMMON,
+    RARE,
+    EPIC,
+    LEGENDARY,
+  };
+
+  class Card {
+    public: 
+
+      // properties
+      float x{};
+      float y{};
+      Vector2 position{x, y};
+      int w{};
+      int h{};
+      Rarity rarity{};
+      Rectangle bounds{};
+      Image image{};
+
+      // methods
+      void drawColor(Color col){
+        DrawRectangleRec(bounds, col);
+      }
+
+      void moveCard(Vector2 mouse, bool& held){
+        if(IsMouseButtonDown(0) && CheckCollisionPointRec(mouse, bounds) && !held) {
+          held = true;
+          mouse.x -= w/2;
+          mouse.y -= h/2;
+          position = mouse;
+          bounds.x = position.x;
+          bounds.y = position.y;
+        } else held = false;
+      }
+      
+      // constructors 
+      Card() {
+        x = 0.0;
+        y = 0.0;
+        w = 100;
+        h = 150;
+        position = {x, y};
+        bounds={x, y, w, h};
+        rarity = Rarity::COMMON;
+      }
+
+      Card(float initX, float initY, int initW, int initH) {
+        x = initX;
+        y = initY;
+        w = initW;
+        h = initH;
+        position = {initX, initY};
+        bounds = {x, y, w, h};
+      }
+    private:
+  };
+
+  Card firstCard(screenWidth/2 - 100/2, screenHeight/2 - 150/2, 100, 150);
+
 
   while (!WindowShouldClose())
   {
-    delta = GetFrameTime();
     // UPDATE //
+    delta = GetFrameTime();
+    mousePos = {GetMouseX(), GetMouseY()};
 
     // Toggle framerate
-     if(IsKeyPressed(KEY_F1) && !_fps) {
+     if(IsKeyPressed(KEY_FIVE) && !_fps) {
       _fps = true;
-    } else if (IsKeyPressed(KEY_F1) && _fps) {
+    } else if (IsKeyPressed(KEY_FIVE) && _fps) {
       _fps = false;
     }
 
-    int direction = 0;
-    if(IsKeyDown(KEY_D)) direction += 1;
-    if(IsKeyDown(KEY_A)) direction -= 1;
-    player.x += direction * maxSpeed * delta;
-
-    if(!CheckCollisionRecs(player, floor)) {
-      player.y += gravity * delta;
-    } 
-
+     firstCard.moveCard(mousePos, isHeld);
 
     // DRAWING //
     BeginDrawing();
 
     ClearBackground(RAYWHITE);
-
-    DrawRectangle(player.x, player.y, player.width, player.height, SKYBLUE);
-    DrawRectangle(floor.x, floor.y, floor.width, floor.height, RED);
-
     if(_fps) {
       DrawFPS(10, 10);
     }
+
+    firstCard.drawColor(RED);
 
     EndDrawing();
   }
