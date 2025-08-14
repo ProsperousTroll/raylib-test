@@ -39,37 +39,20 @@ class Card {
     }
 
     bool isHeld(){
-      if(IsMouseButtonDown(1) && (CheckCollisionPointRec(mousePos, bounds))){
+      if(IsMouseButtonDown(0) && (CheckCollisionPointRec(mousePos, bounds))){
         held = true;
-      } else if (!IsMouseButtonDown(1)) {
+      } else if (!IsMouseButtonDown(0)) {
         held = false;
       }
       return held;
-
-      if(currentlyHeldCard == nullptr){
-        if (IsMouseButtonDown(0) && CheckCollisionPointRec(mousePos, bounds)) {
-          currentlyHeldCard = this;
-          held = true;
-        }
-      }
-
-      if(currentlyHeldCard == this && IsMouseButtonDown(0)){
-        held = true;
-      }
-
-      if (!IsMouseButtonDown(0) && currentlyHeldCard == this){
-        held = false;
-        currentlyHeldCard = nullptr;
-      }
-
     }
     
 
     void moveCard(){
       isHeld();
       if(held){
-        position.x = mousePos.x -= w/50;
-        position.y = mousePos.y -= h/50;
+        position.x = mousePos.x -= w/45;
+        position.y = mousePos.y -= h/45;
 
         bounds.x = Lerp(bounds.x, position.x, 0.002);
         bounds.y = Lerp(bounds.y, position.y, 0.002);
@@ -124,10 +107,10 @@ int main()
 
   std::vector<Card> activeCards;
 
-  int cardCount{50};
+  int cardCount{15};
   //activeCards.emplace_back();
   for(int i{0}; i != cardCount; ++i){
-    activeCards.emplace_back(rand() % screenWidth-10, rand() % screenHeight-10, 100, 150);
+    activeCards.emplace_back(rand() % screenWidth-10, rand() % screenHeight-10, 200, 300);
   }
 
 
@@ -143,6 +126,7 @@ int main()
     } else if (IsKeyPressed(KEY_FIVE) && _fps) {
       _fps = false;
     }
+
 
     for (int i{0}; i != cardCount; ++i){
       activeCards[i].moveCard();
