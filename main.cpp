@@ -5,10 +5,16 @@
 #include <vector>
 #include "test.h"
 
-std::vector<Color> rndColor {RED, ORANGE, YELLOW, GREEN, BLUE, PURPLE};
 class Card;
-Card* heldCard = nullptr;
+float delta{};
 Vector2 mousePos{};
+Card* heldCard = nullptr;
+Color rndColor[6]{RED, ORANGE, YELLOW, GREEN, BLUE, PURPLE};
+
+
+/////////////
+// CLASSES //
+/////////////
 
 enum class Rarity {
   COMMON,
@@ -18,7 +24,6 @@ enum class Rarity {
   LEGENDARY,
 };
 
-
 class Card {
   public: 
     float x{};
@@ -26,11 +31,11 @@ class Card {
     Vector2 position{x, y};
     float w{};
     float h{};
+    bool held = false;
     Rarity rarity{};
     Rectangle bounds{x, y, w, h};
     Color col{};
 
-    bool held = false;
 
     // methods
     void drawColor(){
@@ -45,7 +50,6 @@ class Card {
         held = false;
         heldCard = nullptr;
       }
-
       return held;
     }
     
@@ -55,8 +59,8 @@ class Card {
         position.x = mousePos.x -= w/2;
         position.y = mousePos.y -= h/2;
 
-        bounds.x = Lerp(bounds.x, position.x, 0.002);
-        bounds.y = Lerp(bounds.y, position.y, 0.002);
+        bounds.x = Lerp(bounds.x, position.x, 20 * delta);
+        bounds.y = Lerp(bounds.y, position.y, 20 * delta);
       }          
     }
     
@@ -84,25 +88,27 @@ class Card {
 };
 
 
+// MAIN
 int main()
 {
   // Window settings / config variables 
   const int screenWidth{1024};
   const int screenHeight{768};
-  int refreshRate{GetMonitorRefreshRate(GetCurrentMonitor())};
-  float delta{};
+  const int mon{GetCurrentMonitor()};
+  float refreshRate = GetMonitorRefreshRate(0);
   bool _fps{false};
 
-  InitWindow(screenWidth, screenHeight, "The Game");
-  SetTargetFPS(refreshRate);
+  InitWindow(screenWidth, screenHeight, "Misc Card Game");
+  //pseudo v-sync
+  SetTargetFPS(GetMonitorRefreshRate(GetCurrentMonitor()));
 
-  // just here to make sure my header works
+  // just here to make sure my header works. Will probably move class decs to header.
   testFunction();
 
   // Game Variables
   std::vector<Card> activeCards;
 
-  int cardCount{15};
+  int cardCount{12};
 
   // spawn {cardCount} amount of cards
   for(int i{0}; i != cardCount; ++i){
@@ -130,7 +136,6 @@ int main()
 
     if(heldCard != nullptr){
       heldCard->moveCard();
-      std::cout << heldCard << "\n";
     }
 
     // DRAWING //
