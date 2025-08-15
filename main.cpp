@@ -6,6 +6,8 @@
 #include "test.h"
 
 std::vector<Color> rndColor {RED, ORANGE, YELLOW, GREEN, BLUE, PURPLE};
+class Card;
+Card* heldCard = nullptr;
 Vector2 mousePos{};
 
 enum class Rarity {
@@ -16,9 +18,6 @@ enum class Rarity {
   LEGENDARY,
 };
 
-class Card;
-
-Card* currentlyHeldCard = nullptr;
 
 class Card {
   public: 
@@ -39,20 +38,22 @@ class Card {
     }
 
     bool isHeld(){
-      if(IsMouseButtonDown(0) && (CheckCollisionPointRec(mousePos, bounds))){
+      if(heldCard == nullptr && IsMouseButtonDown(0) && (CheckCollisionPointRec(mousePos, bounds))){
         held = true;
+        heldCard = this;
       } else if (!IsMouseButtonDown(0)) {
         held = false;
+        heldCard = nullptr;
       }
+
       return held;
     }
     
 
     void moveCard(){
-      isHeld();
-      if(held){
-        position.x = mousePos.x -= w/45;
-        position.y = mousePos.y -= h/45;
+      if(isHeld()){
+        position.x = mousePos.x -= w/2;
+        position.y = mousePos.y -= h/2;
 
         bounds.x = Lerp(bounds.x, position.x, 0.002);
         bounds.y = Lerp(bounds.y, position.y, 0.002);
@@ -99,16 +100,11 @@ int main()
   testFunction();
 
   // Game Variables
-
-
-
-
-
-
   std::vector<Card> activeCards;
 
   int cardCount{15};
-  //activeCards.emplace_back();
+
+  // spawn {cardCount} amount of cards
   for(int i{0}; i != cardCount; ++i){
     activeCards.emplace_back(rand() % screenWidth-10, rand() % screenHeight-10, 200, 300);
   }
@@ -121,7 +117,7 @@ int main()
     mousePos = GetMousePosition();
 
     // Toggle framerate
-     if(IsKeyPressed(KEY_FIVE) && !_fps) {
+    if(IsKeyPressed(KEY_FIVE) && !_fps) {
       _fps = true;
     } else if (IsKeyPressed(KEY_FIVE) && _fps) {
       _fps = false;
@@ -129,7 +125,12 @@ int main()
 
 
     for (int i{0}; i != cardCount; ++i){
-      activeCards[i].moveCard();
+      activeCards[i].isHeld();
+    }
+
+    if(heldCard != nullptr){
+      heldCard->moveCard();
+      std::cout << heldCard << "\n";
     }
 
     // DRAWING //
