@@ -52,7 +52,6 @@ class Card {
       }
       return held;
     }
-    
 
     void moveCard(){
       if(isHeld()){
@@ -107,13 +106,9 @@ int main()
 
   // Game Variables
   std::vector<Card> activeCards;
+  int cardCount{2};
 
-  int cardCount{12};
 
-  // spawn {cardCount} amount of cards
-  for(int i{0}; i != cardCount; ++i){
-    activeCards.emplace_back(rand() % screenWidth-10, rand() % screenHeight-10, 200, 300);
-  }
 
 
   while (!WindowShouldClose())
@@ -129,6 +124,16 @@ int main()
       _fps = false;
     }
 
+    if(IsKeyPressed(KEY_SPACE)){
+      ++cardCount;
+    } else if (IsKeyPressed(KEY_X)){
+      --cardCount;
+    }
+
+    // spawn {cardCount} amount of cards
+    for(int i{0}; i != cardCount; ++i){
+      activeCards.emplace_back(rand() % screenWidth-10, rand() % screenHeight-10, 200, 300);
+    }
 
     for (int i{0}; i != cardCount; ++i){
       activeCards[i].isHeld();
@@ -142,7 +147,7 @@ int main()
     BeginDrawing();
     ClearBackground(RAYWHITE);
 
-    for (int i{0}; i != cardCount; ++i){
+    for (int i{cardCount-1}; i != -1; --i){
       activeCards[i].drawColor();
     }
 
