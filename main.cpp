@@ -126,7 +126,7 @@ int main()
 
     if(IsKeyPressed(KEY_SPACE)){
       ++cardCount;
-    } else if (IsKeyPressed(KEY_X)){
+    } else if (IsKeyPressed(KEY_X) && cardCount > 0){
       --cardCount;
     }
 
