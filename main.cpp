@@ -94,8 +94,8 @@ class Card {
 int RandomArt() {
   int odds = rand() % 100;
   if (odds >= 90){
-    return 1;
-  } else return 0;
+    return 0;
+  } else return 1;
 }
 
 // MAIN
@@ -144,9 +144,12 @@ int main()
     }
 
     // spawn {cardCount} amount of cards
-    for(int i{0}; i < cardCount; ++i){
-      activeCards.emplace_back(rand() % screenWidth-10, rand() % screenHeight-10, 200, 300);
-      activeCards[i].texture = ART[1];
+    while (activeCards.size() < cardCount) {
+      activeCards.emplace_back(rand() % (screenWidth - 10), rand() % (screenHeight - 10), 200, 300);
+      activeCards.back().texture = ART[RandomArt()];
+    }
+    while (activeCards.size() > cardCount) {
+      activeCards.pop_back();
     }
 
     for (int i{0}; i < activeCards.size(); ++i){
