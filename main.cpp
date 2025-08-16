@@ -63,8 +63,8 @@ class Card {
         position.x = mousePos.x - w/2;
         position.y = mousePos.y - h/2;
 
-        bounds.x = Lerp(bounds.x, position.x, 20 * delta);
-        bounds.y = Lerp(bounds.y, position.y, 20 * delta);
+        bounds.x = Lerp(bounds.x, position.x, 16 * delta);
+        bounds.y = Lerp(bounds.y, position.y, 16 * delta);
       }          
     }
     
@@ -86,9 +86,24 @@ class Card {
       h = initH;
       position = {initX, initY};
       bounds = {x, y, w, h};
-      col = WHITE; // random color // rndColor[rand() % 6]
+      rarity = rarityCheck();
+      col = rarityColor();// rndColor[rand() % 6]; // WHITE;
+      
     }
   private:
+    Color rarityColor() {
+      switch(rarity){
+        case Rarity::COMMON: return WHITE;
+        case Rarity::UNCOMMON: return GRAY;
+        case Rarity::RARE: return BLUE;
+        case Rarity::EPIC: return PURPLE;
+        case Rarity::LEGENDARY: return YELLOW;
+      }
+    }
+
+    Rarity rarityCheck(){
+      return Rarity::COMMON;
+    }
 };
 
 int RandomArt() {
@@ -115,7 +130,7 @@ int main()
 
   // Game Variables
   std::vector<Card> activeCards;
-  int cardCount{1};
+  int cardCount{0};
 
   std::vector<Texture2D> ART{
     LoadTexture("assets/allenT.png"),
@@ -130,7 +145,7 @@ int main()
     delta = GetFrameTime();
     mousePos = GetMousePosition();
 
-    // Toggle framerate
+    // Input
     if(IsKeyPressed(KEY_FIVE) && !_fps) {
       _fps = true;
     } else if (IsKeyPressed(KEY_FIVE) && _fps) {
@@ -145,17 +160,18 @@ int main()
 
     // spawn {cardCount} amount of cards
     while (activeCards.size() < cardCount) {
-      activeCards.emplace_back(rand() % (screenWidth - 10), rand() % (screenHeight - 10), 200, 300);
+      activeCards.emplace_back(rand() % (screenWidth/2), rand() % (screenHeight/2), 200, 300);
       activeCards.back().texture = ART[RandomArt()];
     }
     while (activeCards.size() > cardCount) {
       activeCards.pop_back();
     }
 
+    // check if card is "being held"
     for (int i{0}; i < activeCards.size(); ++i){
       activeCards[i].isHeld();
     }
-
+    // then V
     if(heldCard != nullptr){
       heldCard->moveCard();
     }
@@ -168,16 +184,14 @@ int main()
       activeCards[i].drawTexture();
     }
 
-
     if(_fps) {
       DrawFPS(10, 10);
     }
     EndDrawing();
 
-
-    
   }
 
+  // UNLOAD TEXTURES 
   for (int i{0}; i < ART.size(); ++i){
     UnloadTexture(ART[i]);
   }
